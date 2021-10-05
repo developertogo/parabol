@@ -115,6 +115,14 @@ jobs:
             elif [ "${CIRCLE_BRANCH}" == "development" ]; then
               curl --ssl -X POST -H 'Content-type: application/json' --data '{"text":"`development` CI and Deployment complete"}' $SLACK_DEVOPS_URL
             fi
+      - run:
+          name: GraphQL server tests
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "production" ] || [ "${CIRCLE_BRANCH}" == "staging" ] || [ "${CIRCLE_BRANCH}" == "master" ]; then
+              cp $DEVOPS_WORKDIR/environments/cypress .env
+              yarn db:start
+              yarn workspace parabol-server test
+            fi
       - store_artifacts:
           path: ~/action/build
           destination: build
