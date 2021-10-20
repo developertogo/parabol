@@ -5,17 +5,17 @@ export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 export type Subtract<T, K> = Omit<T, keyof K>
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
-  ? DeepPartial<U>[]
-  : T[P] extends readonly (infer U)[]
-  ? readonly DeepPartial<U>[]
-  : DeepPartial<T[P]>
+    ? DeepPartial<U>[]
+    : T[P] extends readonly (infer U)[]
+    ? readonly DeepPartial<U>[]
+    : DeepPartial<T[P]>
 }
 export type DeepNullable<T> = {
   [P in keyof T]: T[P] extends (infer U)[]
-  ? DeepNullable<U>[] | null
-  : T[P] extends readonly (infer U)[]
-  ? readonly DeepNullable<U>[] | null
-  : DeepNullable<T[P]> | null
+    ? DeepNullable<U>[] | null
+    : T[P] extends readonly (infer U)[]
+    ? readonly DeepNullable<U>[] | null
+    : DeepNullable<T[P]> | null
 }
 
 export type DeepNonNullable<T> = T extends (...args: any[]) => any
@@ -26,7 +26,7 @@ export type DeepNonNullable<T> = T extends (...args: any[]) => any
   ? DeepNonNullableObject<T>
   : T
 
-interface DeepNonNullableArray<T> extends Array<DeepNonNullable<NonNullable<T>>> { }
+interface DeepNonNullableArray<T> extends Array<DeepNonNullable<NonNullable<T>>> {}
 
 type DeepNonNullableObject<T> = {
   [P in keyof T]-?: DeepNonNullable<NonNullable<T[P]>>
@@ -67,8 +67,8 @@ export type RefCallbackInstance<T extends HTMLElement = HTMLElement> = T | null
 
 type PrependNextNum<A extends Array<unknown>> = A['length'] extends infer T
   ? ((t: T, ...a: A) => void) extends (...x: infer X) => void
-  ? X
-  : never
+    ? X
+    : never
   : never
 
 type EnumerateInternal<A extends Array<unknown>, N extends number> = {
@@ -86,3 +86,13 @@ export type Unproxy<T> = T extends RecordProxy<infer U> ? U : T
 
 // Can remove when this gets merged: https://github.com/DefinitelyTyped/DefinitelyTyped/pull/55847
 export type DiscriminateProxy<T, U> = RecordProxy<Extract<Unproxy<T>, {__typename: U}>>
+
+type Grow<T, A extends Array<T>> = ((x: T, ...xs: A) => void) extends (...a: infer X) => void
+  ? X
+  : never
+type GrowToSize<T, A extends Array<T>, N extends number> = {
+  0: A
+  1: GrowToSize<T, Grow<T, A>, N>
+}[A['length'] extends N ? 0 : 1]
+
+export type FixedLengthArray<T, N extends number> = GrowToSize<T, [], N>
